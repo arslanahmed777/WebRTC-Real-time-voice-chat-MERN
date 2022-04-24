@@ -4,6 +4,9 @@ const hashService = require('../services/hash-service');
 const userService = require('../services/user-service');
 const tokenService = require('../services/token-service');
 
+// ---------------- Data Transform Object --------------
+const UserDto = require('../dtos/user-dto');
+
 class AuthController {
     async sendOtp(req, res) {
         const { phone } = req.body;
@@ -59,8 +62,8 @@ class AuthController {
             maxAge: 1000 * 60 * 60 * 24 * 30,// 30 days
             httpOnly: true,
         });
-        //  const userDto = new UserDto(user);
-        res.json({ accessToken });
+        const userDto = new UserDto(user);
+        res.json({ accessToken, user: userDto });
     }
 }
 module.exports = new AuthController();
