@@ -6,29 +6,33 @@ import Authenticate from './pages/Authenticate/Authenticate';
 import Activate from './pages/Activate/Activate';
 import Rooms from './pages/Rooms/Rooms';
 import { useSelector } from 'react-redux';
+import { useLoadingWithRefresh } from "./hooks/useLoadingWithRefresh"
 
 function App() {
-    return (
-        <BrowserRouter>
-            <Navigation />
-            <Switch>
-                <GuestRoute path="/" exact>
-                    <Home />
-                </GuestRoute>
-                <GuestRoute path="/authenticate">
-                    <Authenticate />
-                </GuestRoute>
-                <SemiProtectedRoute path="/activate">
-                    <Activate />
-                </SemiProtectedRoute>
-                <ProtectedRoute>
-                    <Rooms />
-                </ProtectedRoute>
+    const { loading } = useLoadingWithRefresh()
+    return loading ? (<h1>LOADING</h1>) :
+        (
+            <BrowserRouter>
+                <Navigation />
+                <Switch>
+                    <GuestRoute path="/" exact>
+                        <Home />
+                    </GuestRoute>
+                    <GuestRoute path="/authenticate">
+                        <Authenticate />
+                    </GuestRoute>
+                    <SemiProtectedRoute path="/activate">
+                        <Activate />
+                    </SemiProtectedRoute>
+                    <ProtectedRoute>
+                        <Rooms />
+                    </ProtectedRoute>
+                </Switch>
+            </BrowserRouter>
+
+        )
 
 
-            </Switch>
-        </BrowserRouter>
-    );
 }
 
 export default App;
