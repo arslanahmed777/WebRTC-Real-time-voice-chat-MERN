@@ -75,7 +75,8 @@ class AuthController {
 
     async refresh(req, res) {
         // get refresh token from cookie
-        const { refreshToken: refreshTokenFromCookie } = req.cookie
+
+        const { refreshToken: refreshTokenFromCookie } = req.cookies
 
         // check if token is valid
         let userData;
