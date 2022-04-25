@@ -72,5 +72,59 @@ class AuthController {
         const userDto = new UserDto(user);
         res.json({ user: userDto, auth: true });
     }
+
+    async refresh(req, res) {
+        // get refresh token from cookie
+        const { refreshToken: refreshTokenFromCookie } = req.cookie
+
+        // check if token is valid
+        let userData;
+        try {
+            userData = await tokenService.verifyRefreshToken(refreshTokenFromCookie)
+        } catch (error) {
+            return res.status(401).json({ message: "invalid Token" })
+        }
+
+        // check if token is in db
+        try {
+            const token = await tokenService.findRefreshToken(userData._id, refreshTokenFromCookie)
+            if (!token) {
+                return res.status(401).json({ message: "invalid Token" })
+            }
+        } catch (error) {
+            return res.status(500).json({ message: "Internal error" })
+        }
+
+        // check if user in referesh token is present in user collection
+        const user = await userService.findUser({ _id: userData._id })
+        if (!user) {
+            return res.status(404).json({ message: "No User" })
+        }
+
+        // Generate New tokens
+        const { refreshToken, accessToken } = tokenService.generateTokens({ _id: user._id, })
+
+        // update refresh token in db
+        try {
+            tokenService.updateRefreshToken(userData._id, refreshToken)
+        } catch (error) {
+            return res.status(500).json({ message: "Internal error" })
+        }
+
+        // add tokens in cookie
+        res.cookie('refreshToken', refreshToken, {
+            maxAge: 1000 * 60 * 60 * 24 * 30,// 30 days
+            httpOnly: true,
+        });
+
+        res.cookie('accessToken', accessToken, {
+            maxAge: 1000 * 60 * 60 * 24 * 30,
+            httpOnly: true,
+        });
+
+        // sending response
+        const userDto = new UserDto(user);
+        res.json({ user: userDto, auth: true });
+    }
 }
 module.exports = new AuthController();
