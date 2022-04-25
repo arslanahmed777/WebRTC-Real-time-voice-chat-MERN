@@ -10,6 +10,7 @@ const Phone = ({ onNext }) => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const dispatch = useDispatch();
     const Submit = async () => {
+        if (!phoneNumber) return;
         try {
             const { data } = await sendOtp({ phone: phoneNumber })
             console.log("response", data);
